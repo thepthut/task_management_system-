@@ -35,20 +35,23 @@ class FileTaskStorage(TaskStorage):
        print(f"Tasks saved to {self.filename}")
 
 class Task:
-   def __init__(self, task_id, description, due_date=None, completed=False):
-       self.id = task_id
-       self.description = description
-       self.due_date = due_date
-       self.completed = completed
+   def __init__(self, task_id, description, due_date=None, completed=False, priority="low"):
+        self.id = task_id
+        self.description = description
+        self.due_date = due_date
+        self.completed = completed
+        self.priority = priority # เพิ่ม attribute priority
 
    def mark_completed(self):
        self.completed = True
        print(f"Task {self.id} '{self.description}' marked as completed.")
 
    def __str__(self):
-       status = "✓" if self.completed else " "
-       due = f" (Due: {self.due_date})" if self.due_date else ""
-       return f"[{status}] {self.id}. {self.description}{due}"
+        status = "✓" if self.completed else " "
+        due = f" (Due: {self.due_date})" if self.due_date else ""
+        # เพิ่มการแสดงผล priority ใน string
+        prio_display = f" [{self.priority.upper()}]"
+        return f"[{status}] {prio_display} {self.id}. {self.description}{due}"
 
 class TaskManager:
    def add_task(self, description, due_date=None):
@@ -87,13 +90,14 @@ class TaskManager:
        self.next_id = max([t.id for t in self.tasks] + [0]) + 1 if self.tasks else 1
        print(f"Loaded {len(self.tasks)} tasks. Next ID: {self.next_id}")
 
-   def add_task(self, description, due_date=None):
-       task = Task(self.next_id, description, due_date)
-       self.tasks.append(task)
-       self.next_id += 1
-       self.storage.save_tasks(self.tasks) # Save after adding
-       print(f"Task '{description}' added.")
-       return task
+   def add_task(self, description, due_date=None, priority="low"):
+        # ส่งค่า priority ไปยัง Task constructor
+        task = Task(self.next_id, description, due_date, priority=priority)
+        self.tasks.append(task)
+        self.next_id += 1
+        self.storage.save_tasks(self.tasks)
+        print(f"Task '{description}' added with priority '{priority}'.")
+        return task
 
    # ... (list_tasks, get_task_by_id, mark_task_completed methods เหมือนเดิม) ...
 
